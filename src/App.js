@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Chart } from 'react-google-charts';
+import './App.css';
 
 const App = () => {
+  const [interval, setInterval] = useState('1d'); // Default interval is 1 day
   const [chartData, setChartData] = useState([]);
 
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        `/v8/finance/chart/SPUS?period1=1633381200&period2=1664917199&interval=1d&events=history&crumb=5YTX%2FgVGBmg&corsDomain=finance.yahoo.com&.tsrc=finance`,
+        `/v8/finance/chart/SPUS?period1=1633381200&period2=1664917199&interval=${interval}&events=history&crumb=5YTX%2FgVGBmg&corsDomain=finance.yahoo.com&.tsrc=finance`,
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -35,7 +37,7 @@ const App = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [interval]);
 
   const options =  {
     legend: 'none',
@@ -47,16 +49,28 @@ const App = () => {
     chartArea: { width: '80%', height: '80%' }, // increase the chart area
   };
 
+  const handleIntervalChange = (e) => {
+    setInterval(e.target.value);
+  };
+
   return (
-    <>
+    <div className="container">
+      <div>
+        <label htmlFor="interval">Select interval:</label>
+        <select id="interval" value={interval} onChange={handleIntervalChange}>
+          <option value="1d">1 day</option>
+          <option value="1wk">1 week</option>
+          <option value="1mo">1 month</option>
+        </select>
+      </div>
       <Chart
         chartType="CandlestickChart"
-        width="110%"
+        width="100%"
         height="500px"
         data={chartData}
         options={options}
       />
-    </>
+    </div>
   );
 };
 
